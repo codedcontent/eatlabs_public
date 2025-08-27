@@ -38,6 +38,16 @@ export default function Home() {
           </div>
         </div>
       </nav>
+
+      {/* Food search */}
+      <div className="flex flex-col h-[90%] justify-center items-center gap-6">
+        <p>Food in the hands of students</p>
+
+        <div className="flex gap-2">
+          <input type="text" placeholder="Search for food..." />
+          <button>Search</button>
+        </div>
+      </div>
     </div>
   );
 }
