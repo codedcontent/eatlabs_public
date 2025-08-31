@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Lato } from "next/font/google";
+import { Lato } from "next/font/google";
+import { NextAuthProvider } from "./providers";
 import "./globals.css";
 
 const lato = Lato({
@@ -20,11 +21,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${lato.variable} ${lato.className} ${lato.style} antialiased`}
-      >
-        {children}
-      </body>
+      <NextAuthProvider>
+        <body
+          suppressHydrationWarning={true}
+          className={`${lato.variable} ${lato.className} ${lato.style} antialiased`}
+        >
+          {children}
+        </body>
+      </NextAuthProvider>
     </html>
   );
 }

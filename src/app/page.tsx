@@ -1,15 +1,32 @@
-// import Image from "next/image";
+"use client";
+
 import { IoMenu } from "react-icons/io5";
 import { LuExternalLink } from "react-icons/lu";
 import { FaLocationDot } from "react-icons/fa6";
+import { RiAccountCircleLine } from "react-icons/ri";
 import Image from "next/image";
 import Link from "next/link";
+import { useSession, signOut, signIn } from "next-auth/react";
+import { VscLoading } from "react-icons/vsc";
+import { FcGoogle } from "react-icons/fc";
 
 export default function Home() {
+  const { status, data: session } = useSession();
+
   return (
-    <div className="h-screen w-full bg-[url('/images/foodapp.webp')] bg-cover bg-center relative">
+    <div className="h-screen w-full relative">
+      {/* Background image */}
+      <Image
+        src="/images/foodapp.webp"
+        alt=""
+        fill
+        priority
+        sizes="100vw"
+        className="object-cover absolute -z-10"
+      />
+
       {/* Nav */}
-      <nav className="py-4 px-6 flex w-full justify-between items-center border-b border-white bg-white sticky top-0 bg-opacity-90">
+      <nav className="py-4 px-6 flex w-full justify-between items-center border-b border-white bg-white sticky top-0 bg-opacity-90 z-50">
         {/* Logo */}
         <Link href={"/"} className="hover:opacity-80">
           <div className="flex justify-center items-center gap-2">
@@ -31,22 +48,37 @@ export default function Home() {
             <LuExternalLink />
           </div>
 
-          {/* User Account */}
-          <div className="flex gap-4">
-            <Link
-              href={"/login"}
-              className="bg-white text-black px-4 py-2 rounded-full shadow-lg border border-gray-100"
-            >
-              Log in
-            </Link>
+          {status != "loading" ? (
+            <>
+              {status === "authenticated" ? (
+                // User Account
+                <div className="flex gap-3">
+                  {/* <div className="flex gap-3 border-gray-200 border rounded-full px-4 py-2 items-center cursor-pointer hover:border-black">
+                    <p>My account</p>
 
-            <Link
-              href={"/signup"}
-              className="bg-black text-white px-4 py-2 rounded-full shadow-lg"
-            >
-              Sign up
-            </Link>
-          </div>
+                    <RiAccountCircleLine className="text-2xl" />
+                  </div> */}
+                  <button
+                    className="py-2 bg-black shadow-md rounded-lg px-4 cursor-pointer text-white"
+                    onClick={() => signOut()}
+                  >
+                    Log out
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => signIn("google")}
+                  className="bg-black text-white px-4 py-2 rounded-full shadow-lg cursor-pointer hover:opacity-80 flex items-center gap-2"
+                >
+                  <FcGoogle className="text-xl" />
+
+                  <p>Sign in with Google</p>
+                </button>
+              )}
+            </>
+          ) : (
+            <VscLoading className="text-2xl animate-spin" />
+          )}
         </div>
       </nav>
 
