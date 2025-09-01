@@ -9,9 +9,38 @@ import Link from "next/link";
 import { useSession, signOut, signIn } from "next-auth/react";
 import { VscLoading } from "react-icons/vsc";
 import { FcGoogle } from "react-icons/fc";
+import { useEffect, useRef, useState } from "react";
 
 export default function Home() {
   const { status, data: session } = useSession();
+  const [isMyAccountOpen, setIsMyAccountOpen] = useState(false);
+
+  const menuRef = useRef<HTMLDivElement | null>(null);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
+
+  // Close on outside click
+  useEffect(() => {
+    if (!isMyAccountOpen) return;
+
+    const handleClickOutside = (e: MouseEvent | TouchEvent) => {
+      const target = e.target as Node;
+      if (
+        menuRef.current?.contains(target) ||
+        triggerRef.current?.contains(target)
+      ) {
+        return;
+      }
+      setIsMyAccountOpen(false);
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
+  }, [isMyAccountOpen]);
 
   return (
     <div className="h-screen w-full relative">
@@ -30,8 +59,6 @@ export default function Home() {
         {/* Logo */}
         <Link href={"/"} className="hover:opacity-80">
           <div className="flex justify-center items-center gap-2">
-            {/* <IoMenu className="text-2xl" /> */}
-
             <div className="flex gap-1 items-baseline justify-center">
               <p className="font-medium text-3xl">Eat</p>
               <p className="font-bold text-2xl">Labs</p>
@@ -44,7 +71,6 @@ export default function Home() {
           {/* Sponsor Us */}
           <div className="flex gap-1.5 items-center font-bold">
             <p className="text-sm">Sponsor us</p>
-
             <LuExternalLink />
           </div>
 
@@ -52,18 +78,51 @@ export default function Home() {
             <>
               {status === "authenticated" ? (
                 // User Account
-                <div className="flex gap-3">
-                  {/* <div className="flex gap-3 border-gray-200 border rounded-full px-4 py-2 items-center cursor-pointer hover:border-black">
-                    <p>My account</p>
-
-                    <RiAccountCircleLine className="text-2xl" />
-                  </div> */}
+                <div className="flex gap-3 relative">
                   <button
-                    className="py-2 bg-black shadow-md rounded-lg px-4 cursor-pointer text-white"
-                    onClick={() => signOut()}
+                    ref={triggerRef}
+                    className="flex gap-3 border-gray-200 border rounded-full px-4 py-2 items-center cursor-pointer hover:border-black"
+                    onClick={() => setIsMyAccountOpen((prev) => !prev)}
                   >
-                    Log out
+                    <p>My account</p>
+                    <RiAccountCircleLine className="text-2xl" />
                   </button>
+
+                  {isMyAccountOpen && (
+                    <div
+                      ref={menuRef}
+                      className="absolute top-full mt-1 bg-white shadow-lg rounded-lg flex flex-col gap-1 pb-1 w-36 border border-gray-200"
+                    >
+                      <p className="text-sm font-medium px-4 py-2 border-b border-gray-200 text-gray-600">
+                        Welcome back,{" "}
+                        <span className="font-black text-black">
+                          {session.user?.name}
+                        </span>
+                      </p>
+                      <Link
+                        href={"/orders"}
+                        className="block text-sm font-medium w-full px-4 py-2 hover:bg-gray-100"
+                      >
+                        My orders
+                      </Link>
+
+                      <Link
+                        href={"/history"}
+                        className="block text-sm font-medium w-full px-4 py-2 hover:bg-gray-100"
+                      >
+                        My history
+                      </Link>
+
+                      <div className="w-full px-3 pt-2">
+                        <button
+                          className="py-2 bg-black shadow-md rounded-lg px-4 text-white w-full hover:bg-gray-800"
+                          onClick={() => signOut()}
+                        >
+                          Log out
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <button
@@ -71,7 +130,6 @@ export default function Home() {
                   className="bg-black text-white px-4 py-2 rounded-full shadow-lg cursor-pointer hover:opacity-80 flex items-center gap-2"
                 >
                   <FcGoogle className="text-xl" />
-
                   <p>Sign in with Google</p>
                 </button>
               )}
